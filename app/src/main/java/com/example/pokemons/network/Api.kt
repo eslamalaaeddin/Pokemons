@@ -7,5 +7,9 @@ import retrofit2.http.Query
 
 interface Api {
     @GET("pokemon")
-    suspend fun getResponse(@Query("offset") offset: Int, @Query("limit") limit: Int): Response
+    suspend fun getResponse(
+        @Query("limit") loadSize: Int = 0,
+        @Query("next") next: String? = null,
+        @Query("previous") previous: String? = null,
+    ): Response
 }

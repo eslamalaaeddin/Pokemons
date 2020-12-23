@@ -1,40 +1,46 @@
 package com.example.pokemons.ui
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.pokemons.R
 import com.example.pokemons.model.Pokemon
+import com.example.pokemons.utils.DiffUtilCallBack
 import kotlinx.android.synthetic.main.pokemon_item_layout.view.*
 
-class PokemonsAdapter(private var pokemons: List<Pokemon>) :
-    RecyclerView.Adapter<PokemonsAdapter.PokemonsHolder>() {
+private const val TAG = "PokemonsPagedAdapter"
+class PokemonsAdapter(): PagingDataAdapter<Pokemon, PokemonsAdapter.PokemonViewHolder>(DiffUtilCallBack()){
 
-    inner class PokemonsHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
-        fun bind(pokemon: Pokemon) {
-            Glide.with(itemView.context).load(pokemon.url).into(itemView.pokemonImageView)
-            itemView.pokemonNameTextView.text = pokemon.name
+    override fun onBindViewHolder(holder: PokemonViewHolder, position: Int) {
+        getItem(position)?.let { pokemon ->
+            holder.bind(pokemon)
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PokemonsHolder {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int
+    ): PokemonViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.pokemon_item_layout, parent, false)
 
-        return PokemonsHolder(view)
+        return PokemonViewHolder(view)
     }
 
-    override fun getItemCount(): Int {
-        return pokemons.size
-    }
+    class PokemonViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-    override fun onBindViewHolder(holder: PokemonsHolder, position: Int) {
-        val pokemon = pokemons[holder.adapterPosition]
-        holder.bind(pokemon)
+        fun bind(pokemon: Pokemon) {
+
+            pokemon.url = "https://pokeres.bastionbot.org/images/pokemon/${
+                pokemon.url.orEmpty().substring(33, pokemon.url.orEmpty().toCharArray().size - 1)
+            }.png"
+
+            Glide.with(itemView.context).load(pokemon.url).into(itemView.pokemonImageView)
+            itemView.pokemonNameTextView.text = pokemon.name
+            itemView.pokemonCounterTextView.text = adapterPosition.toString()
+        }
     }
 }
